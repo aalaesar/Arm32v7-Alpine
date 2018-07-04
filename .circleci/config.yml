@@ -21,13 +21,11 @@ jobs:
           name: Downloading Alpine
           command: |
              sh ./scripts/minirootfs-download.sh
-             sh ./scripts/cleaning.sh
 
     # Bringing remote docker up
       - setup_remote_docker
 
-
-    # Creating Arm32v7-Alpine image 
+    # Creating Arm32v7-Alpine image
       - run:
           name: Creating Arm32v7-Alpine image
           command: sh ./scripts/Arm32v7-Alpine-docker-build.sh

@@ -1,61 +1,48 @@
 #!/usr/bin/env bash
 alpineUrl="http://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/armhf/"
-ls -la
-cd release
-mkdir tmp
-cd tmp
 
-echo "Current directory: $(pwd)"
+available_files() {
+  # return the files present in the url, sorted by time (older to newer)
+  local url="$1"
+  while read myline; do
+    myline_elmnts=($myline)
+    # basically just converting the date format into timestamp for sorting
+    myline_elmnts[0]="$(date -d "${myline_elmnts[0]/_/ }" +%s)"
+    echo "${myline_elmnts[@]}"
+  done < <(wget -O - -q $url | grep minirootfs| sed -r 's@^<a href="(.*)">.*</a>@\1@g'| awk '{print $2"_"$3" "$1}') | sort -t ' ' -k1n| awk '{print $2}'
+}
 
-wget -O - -q $alpineUrl |
-grep minirootfs |
-tail -4 |
-cut -d'>' -f 2 |
-cut -d'<' -f 1 > filenames.log
-
-while read -r line
+#look over the 4 latest file but exclude Release candidates first
+while read line
 do
-    file="$line"
+  if grep -q '\tar\.gz$' <<<"$line"; then
+    rootfsfile="$line"
+  elif grep -q '\tar\.gz\.sha512$' <<<"$line"; then
+    signaturefile="$line"
     echo "Downloading [$alpineUrl$file]"
-    wget -q $alpineUrl$file 
-done < filenames.log
+    wget -q $alpineUrl$file
+  fi
+done < <(available_files $alpineUrl | grep -Ev '_rc[0-9]+' | tail -4)
+if [ -z "$signaturefile"]; then
+  echo "Warning: no sha512 hash file found. skipping validation"
+elif sha512sum --quiet -c $signaturefile; then
+  echo "File succesfully validated!!!. [sha512 signature]"
+else
+  echo "File failed to validate ! [sha512 signature]"
+  exit 1
+fi
 
-rootfsfile=$(head -1 filenames.log)
-signaturefile=$(tail -1 filenames.log)
+[[ -f alpine-minirootfs-armhf.tar.xz.sha512 ]] && \
+if ! diff -q $signaturefile alpine-minirootfs-armhf.tar.xz.sha512 ; then
+  echo "[INFO] File signatures are equal. Update not needed"
+  [[ -f $HOME/.circlerc ]] && echo "export SKIP_BUILD=true" >>$HOME/.circlerc
+  exit 0
+fi
+mv $signaturefile alpine-minirootfs-armhf.tar.xz.sha512
+ALPINE_VERSION=$(sed -E 's@.*minirootfs-([0-9.]+)-armhf.*' <<<$rootfsfile)
+[[ -f $HOME/.circlerc ]] && echo "export ALPINE_VERSION=$ALPINE_VERSION" >>$HOME/.circlerc
+echo "New Alpine version detected $ALPINE_VERSION [Alpine]"
 
-OK=$(sha512sum -c $signaturefile | grep OK | wc -l)
-
-   if [ $OK -eq 1 ]; then
-       echo "File sucesfully validated!!!. [sha512 signature]"
-
-       OldKey='Default'
-
-       if [ -f ../../signature.tar.xz.sha512 ]; then
-          OldKey=$(sha512sum ../../signature.tar.xz.sha512 | cut -d' ' -f 1)
-       fi
-
-       NewKey=$(sha512sum $signaturefile | cut -d' ' -f 1)
-
-       if [ "$OldKey" != "$NewKey" ]; then
-	echo "A new Alpine version detected $rootfsfile  [Alpine]"
-
-	echo "Renaming to rootfs.tar.xz"
-	cp $rootfsfile ../../rootfs.tar.xz
-
-	echo "Renaming Signature"
-	cp $signaturefile ../../signature.tar.xz.sha512
-
-        echo "Moving downloaded files to /release folder current folder: $(pwd)"
-
-        ls -la
-        cd ..
-	rm *.gz.*
-        cd tmp
-        cp *.gz.* ../
-	echo "Directory$(pwd)"
-        ls -la
-
-       else
-         echo "[Warning] File signatures are equal. Update not needed"
-       fi
-   fi
+echo "Downloading [$alpineUrl$rootfsfile] to alpine-minirootfs-armhf.tar.xz"
+[ -f alpine-minirootfs-armhf.tar.xz ] && rm alpine-minirootfs-armhf.tar.xz
+wget $alpineUrl$rootfsfile -O alpine-minirootfs-armhf.tar.xz
