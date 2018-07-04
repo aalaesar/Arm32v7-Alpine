@@ -1,45 +1,35 @@
+version: 2
 jobs:
-
   build:
-
     docker:
       - image: docker:stable-git
-
     working_directory: /home/ubuntu
-
     steps:
     # Code checkout
       - checkout
-
     # Installing build dependencies
       - run:
           name: Downloading build image dependencies
           command: sh ./scripts/install-packages.sh
-
     # Downloading Alpine
       - run:
           name: Downloading Alpine
           command: |
-             sh ./scripts/minirootfs-download.sh
-
+             bash ./scripts/minirootfs-download.sh
     # Bringing remote docker up
       - setup_remote_docker
-
     # Creating Arm32v7-Alpine image
       - run:
           name: Creating Arm32v7-Alpine image
-          command: sh ./scripts/Arm32v7-Alpine-docker-build.sh
-
+          command: bash ./scripts/Arm32v7-Alpine-docker-build.sh
     # Running the docker container with qemu [Emulating Arm32v7]
       - run:
           name: Running the docker container with qemu [Emulating Arm32v7]
           command: sh ./scripts/Arm32v7-Alpine-docker-run.sh
-
     # Running the test within the running Arm32v7-Alpine container
       - run:
           name: Running the test within the running Arm32v7-Alpine container
           command: sh ./scripts/Arm32v7-Alpine-tests.sh
-
     # Push release folder, rootfs and signature to Github
     # Trigger the Dockehub.com remote build
       - run:
