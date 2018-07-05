@@ -16,11 +16,11 @@ available_files() {
 #look over the 4 latest file but exclude Release candidates first
 while read line
 do
-  if grep -q '\tar\.gz$' <<<"$line"; then
+  if grep -Eq '\.tar\.gz$' <<<"$line"; then
     rootfsfile="$line"
-  elif grep -q '\tar\.gz\.sha512$' <<<"$line"; then
+  elif grep -Eq '\.tar\.gz\.sha512$' <<<"$line"; then
     signaturefile="$line"
-    echo "Downloading [$alpineUrl$file]"
+    echo "Downloading [$alpineUrl$signaturefile]"
     wget -q $alpineUrl$file
   fi
 done < <(available_files $alpineUrl | grep -Ev '_rc[0-9]+' | tail -4)
