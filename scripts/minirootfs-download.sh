@@ -40,4 +40,4 @@ ALPINE_VERSION=$(sed -E 's@.*minirootfs-([0-9.]+)-armhf.*@\1@g' <<<$rootfsfile)
 [[ -f $HOME/.circlerc ]] && echo "export ALPINE_VERSION=$ALPINE_VERSION" >>$HOME/.circlerc
 echo "New Alpine version detected [Alpine-$ALPINE_VERSION]"
 echo "updating Dockerfile"
-sed -Ei "@$alpineUrl.*@$alpineUrl$rootfsfile /@g" Dockerfile
+sed -Ei "s@$alpineUrl.*@$alpineUrl$rootfsfile /@g" Dockerfile
