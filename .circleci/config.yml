@@ -13,7 +13,7 @@ jobs:
           command: sh ./scripts/install-packages.sh
     # Downloading Alpine
       - run:
-          name: Downloading Alpine
+          name: Find Alpine Latest version
           command: |
              bash ./scripts/minirootfs-download.sh
     # Bringing remote docker up
@@ -35,3 +35,4 @@ jobs:
       - run:
           name: Pushing release folder, rootfs and signature to github AND Dockerhub.com build trigger
           command: sh ./scripts/dockerhub-build.sh
+          context: DOCKERHUBKEY
