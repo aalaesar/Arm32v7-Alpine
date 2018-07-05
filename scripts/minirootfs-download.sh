@@ -31,13 +31,13 @@ fi
 [[ -f alpine-minirootfs-armhf.tar.xz.sha512 ]] && \
 if diff -q $signaturefile alpine-minirootfs-armhf.tar.xz.sha512 ; then
   echo "[INFO] File signatures are equal. Update not needed"
-  [[ -f $HOME/.circlerc ]] && echo "export SKIP_BUILD=true" >>$HOME/.circlerc
+  echo "export SKIP_BUILD=true" >>$HOME/.circlerc
   exit 0
 fi
-[[ -f $HOME/.circlerc ]] && echo "export SKIP_BUILD=false" >>$HOME/.circlerc
+echo "export SKIP_BUILD=false" >>$HOME/.circlerc
 mv $signaturefile alpine-minirootfs-armhf.tar.xz.sha512
 ALPINE_VERSION=$(sed -E 's@.*minirootfs-([0-9.]+)-armhf.*@\1@g' <<<$rootfsfile)
-[[ -f $HOME/.circlerc ]] && echo "export ALPINE_VERSION=$ALPINE_VERSION" >>$HOME/.circlerc
+echo "export ALPINE_VERSION=$ALPINE_VERSION" >>$HOME/.circlerc
 echo "New Alpine version detected [Alpine-$ALPINE_VERSION]"
 echo "updating Dockerfile"
 sed -Ei "s@$alpineUrl.*@$alpineUrl$rootfsfile /@g" Dockerfile

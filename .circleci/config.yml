@@ -21,7 +21,9 @@ jobs:
     # Creating Arm32v7-Alpine image
       - run:
           name: Creating Arm32v7-Alpine image
-          command: bash ./scripts/Arm32v7-Alpine-docker-build.sh
+          command: |
+            source $HOME/.circlerc
+            bash ./scripts/Arm32v7-Alpine-docker-build.sh
     # Running the docker container with qemu [Emulating Arm32v7]
       - run:
           name: Running the docker container with qemu [Emulating Arm32v7]
@@ -34,5 +36,7 @@ jobs:
     # Trigger the Dockehub.com remote build
       - run:
           name: Pushing release folder, rootfs and signature to github AND Dockerhub.com build trigger
-          command: sh ./scripts/dockerhub-build.sh
+          command: |
+            $HOME/.circlerc
+            bash ./scripts/dockerhub-build.sh
           context: DOCKERHUBKEY
