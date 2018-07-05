@@ -24,13 +24,8 @@ do
     wget -q $alpineUrl$signaturefile
   fi
 done < <(available_files $alpineUrl | grep -Ev '_rc[0-9]+' | tail -4)
-if [ -z "$signaturefile"]; then
+if [ -z "$signaturefile" ]; then
   echo "Warning: no sha512 hash file found."
-  exit 1
-elif sha512sum --quiet -c $signaturefile; then
-  echo "File succesfully validated!!!. [sha512 signature]"
-else
-  echo "File failed to validate ! [sha512 signature]"
   exit 1
 fi
 
