@@ -21,7 +21,7 @@ do
   elif grep -Eq '\.tar\.gz\.sha512$' <<<"$line"; then
     signaturefile="$line"
     echo "Downloading [$alpineUrl$signaturefile]"
-    wget -q $alpineUrl$file
+    wget -q $alpineUrl$signaturefile
   fi
 done < <(available_files $alpineUrl | grep -Ev '_rc[0-9]+' | tail -4)
 if [ -z "$signaturefile"]; then
