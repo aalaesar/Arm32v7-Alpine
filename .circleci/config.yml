@@ -37,6 +37,6 @@ jobs:
       - run:
           name: Pushing release folder, rootfs and signature to github AND Dockerhub.com build trigger
           command: |
-            $HOME/.circlerc
+            source $HOME/.circlerc
             bash ./scripts/dockerhub-build.sh
           context: DOCKERHUBKEY
