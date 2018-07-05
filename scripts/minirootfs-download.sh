@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -xe
 alpineUrl="http://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/armhf/"
 
 available_files() {
@@ -35,6 +34,7 @@ if diff -q $signaturefile alpine-minirootfs-armhf.tar.xz.sha512 ; then
   [[ -f $HOME/.circlerc ]] && echo "export SKIP_BUILD=true" >>$HOME/.circlerc
   exit 0
 fi
+[[ -f $HOME/.circlerc ]] && echo "export SKIP_BUILD=false" >>$HOME/.circlerc
 mv $signaturefile alpine-minirootfs-armhf.tar.xz.sha512
 ALPINE_VERSION=$(sed -E 's@.*minirootfs-([0-9.]+)-armhf.*@\1@g' <<<$rootfsfile)
 [[ -f $HOME/.circlerc ]] && echo "export ALPINE_VERSION=$ALPINE_VERSION" >>$HOME/.circlerc
