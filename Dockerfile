@@ -1,8 +1,8 @@
 FROM alpine:latest as extractor
 WORKDIR /myalpine
-ADD http://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/armhf/alpine-minirootfs-3.8.0-armhf.tar.gz .
-RUN tar -xzf alpine-minirootfs-3.8.0-armhf.tar.gz
-RUN rm alpine-minirootfs-3.8.0-armhf.tar.gz
+ADD http://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/armhf/alpine-minirootfs-3.8.1-armhf.tar.gz .
+RUN tar -xzf alpine-minirootfs-3.8.1-armhf.tar.gz
+RUN rm alpine-minirootfs-3.8.1-armhf.tar.gz
 
 FROM scratch
 WORKDIR /
